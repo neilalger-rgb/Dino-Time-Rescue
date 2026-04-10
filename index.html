@@ -24,6 +24,19 @@
         .reset-btn:hover { background-color: #E67E22; }
         #backpack { color: #FFD700; font-weight: bold; }
         #meat-count { color: #FFB6C1; font-weight: bold; }
+        
+        /* New Styles for Story and Legend */
+        .story-box { 
+            max-width: 600px; margin: 15px auto; background-color: #333; 
+            padding: 20px; border-radius: 8px; border: 2px solid #555; 
+            text-align: left; line-height: 1.6; font-size: 15px;
+        }
+        .legend-container {
+            display: flex; flex-wrap: wrap; justify-content: center; 
+            max-width: 600px; margin: 0 auto 15px auto; gap: 10px;
+        }
+        .legend-item { display: inline-flex; align-items: center; font-size: 14px; }
+        .color-box { width: 16px; height: 16px; margin-right: 6px; border: 1px solid #000; }
     </style>
 </head>
 <body>
@@ -31,15 +44,35 @@
     <h1>Dinosaur Time Rescue!</h1>
     
     <div class="controls" id="character-select">
-        <h3>Choose your hero:</h3>
+        
+        <!-- The Game Story -->
+        <div class="story-box">
+            <p style="margin-top: 0; text-align: center; font-size: 20px; color: #FFD700;"><strong>📖 The Story 📖</strong></p>
+            <p>Little Nate got accidentally sucked into the time of the dinosaurs! Lila, who was feeling like she was alone in the world, saw a mysterious time traveler and bravely jumped into the portal after them to help.</p>
+            <p>Now, they are trapped in a prehistoric jungle maze. You must help them find and rescue the <strong>5 missing inventors</strong> of the time machine. Navigate the maze, swing on vines, dodge the hunting dinosaurs, and forage for meat to distract the speedy Raptors.</p>
+            <p style="margin-bottom: 0;">If you rescue everyone, prepare to face the terrifying King T-Rex in a final, stealthy tickle-battle on a giant trampoline to escape!</p>
+        </div>
+
+        <h3>Choose your hero to begin:</h3>
         <button onclick="startGame('Lila')">Play as Lila (Purple)</button>
         <button onclick="startGame('Nate')">Play as Nate (Blue)</button>
     </div>
 
     <div id="game-ui" style="display: none;">
         <p>Hero: <span id="hero-name"></span> | Backpack: <span id="backpack">Empty</span> | Meat: <span id="meat-count">0</span></p>
-        <p>Use <strong>Arrow Keys</strong>. Step on Light Green Vines to SWING fast!</p>
-        <p><strong>Press SPACEBAR to drop Dino-Meat and distract Raptors!</strong></p>
+        <p><strong>Controls:</strong> Use Arrow Keys to move. Press SPACEBAR to drop meat!</p>
+        
+        <!-- The Visual Legend -->
+        <div class="legend-container">
+            <div class="legend-item"><div class="color-box" style="background-color: #006400;"></div> Trees (Wall)</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #32CD32;"></div> Vines (Swing)</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #FFD700;"></div> Inventor</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #FF4500;"></div> Lava (Danger)</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #FFB6C1;"></div> Raw Meat</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #FF0000;"></div> Raptor (Fast)</div>
+            <div class="legend-item"><div class="color-box" style="background-color: #808080;"></div> Stego (Slow)</div>
+        </div>
+
         <canvas id="gameCanvas" width="600" height="600"></canvas>
         <br>
         <button class="reset-btn" onclick="resetBoard()">Generate New Maze</button>
