@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dinosaur Time Rescue: The Audio Update!</title>
+    <title>Dinosaur Time Rescue: The Grand Finale!</title>
     <style>
         body {
             background-color: #222; color: #fff;
@@ -32,10 +32,9 @@
         }
         .legend-container {
             display: flex; flex-wrap: wrap; justify-content: center; 
-            max-width: 600px; margin: 0 auto 15px auto; gap: 10px;
+            max-width: 600px; margin: 0 auto 15px auto; gap: 15px;
         }
-        .legend-item { display: inline-flex; align-items: center; font-size: 14px; }
-        .color-box { width: 16px; height: 16px; margin-right: 6px; border: 1px solid #000; }
+        .legend-item { display: inline-flex; align-items: center; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -52,8 +51,8 @@
         </div>
 
         <h3>Choose your hero to begin:</h3>
-        <button onclick="startGame('Lila')">Play as Lila (Purple)</button>
-        <button onclick="startGame('Nate')">Play as Nate (Blue)</button>
+        <button onclick="startGame('👧')">Play as Lila (👧)</button>
+        <button onclick="startGame('👦')">Play as Nate (👦)</button>
     </div>
 
     <div id="game-ui" style="display: none;">
@@ -61,13 +60,13 @@
         <p><strong>Controls:</strong> Use Arrow Keys to move. Press SPACEBAR to drop meat!</p>
         
         <div class="legend-container">
-            <div class="legend-item"><div class="color-box" style="background-color: #006400;"></div> Trees</div>
-            <div class="legend-item"><div class="color-box" style="background-color: #32CD32;"></div> Vines</div>
-            <div class="legend-item"><div class="color-box" style="background-color: #FFD700;"></div> Inventor</div>
-            <div class="legend-item"><div class="color-box" style="background-color: #FF4500;"></div> Lava</div>
-            <div class="legend-item"><div class="color-box" style="background-color: #FFB6C1;"></div> Meat</div>
-            <div class="legend-item"><div class="color-box" style="background-color: #FF0000;"></div> Raptor</div>
-            <div class="legend-item"><div class="color-box" style="background-color: #808080;"></div> Stego</div>
+            <div class="legend-item">🌲 Trees</div>
+            <div class="legend-item">🌿 Vines</div>
+            <div class="legend-item">🧑‍🔬 Inventor</div>
+            <div class="legend-item">🌋 Lava</div>
+            <div class="legend-item">🥩 Meat</div>
+            <div class="legend-item">🦖 Raptor</div>
+            <div class="legend-item">🦕 Stego</div>
         </div>
 
         <canvas id="gameCanvas" width="600" height="600"></canvas>
@@ -77,7 +76,7 @@
     </div>
 
     <script>
-        // --- 8-BIT SOUND ENGINE ---
+        // --- UPGRADED SOUND ENGINE ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
 
@@ -112,7 +111,21 @@
                 SoundEngine.playTone(800, 'square', 0.2, 0.1); 
                 setTimeout(function(){ SoundEngine.playTone(1000, 'square', 0.3, 0.1); }, 100);
             },
-            snore: function() { SoundEngine.playTone(100, 'sine', 0.8, 0.15, 80); }
+            snore: function() { SoundEngine.playTone(100, 'sine', 0.8, 0.15, 80); },
+            rescue: function() { // New Chime for Inventor Rescue!
+                SoundEngine.playTone(523.25, 'sine', 0.1, 0.1); // C5
+                setTimeout(function(){ SoundEngine.playTone(659.25, 'sine', 0.1, 0.1); }, 100); // E5
+                setTimeout(function(){ SoundEngine.playTone(783.99, 'sine', 0.2, 0.1); }, 200); // G5
+            },
+            victory: function() { // Epic Victory Fanfare!
+                let vNotes = new Array(523.25, 523.25, 523.25, 698.46, 587.33, 698.46);
+                let vTimes = new Array(0, 150, 300, 450, 750, 900);
+                for(let i = 0; i < vNotes.length; i++) {
+                    setTimeout(function() {
+                        SoundEngine.playTone(vNotes.at(i), 'square', 0.15, 0.1);
+                    }, vTimes.at(i));
+                }
+            }
         };
 
         const notes = new Array(261.63, 329.63, 392.00, 523.25, 392.00, 329.63);
@@ -123,14 +136,15 @@
             noteIndex++;
             if (noteIndex >= notes.length) noteIndex = 0;
         }
-        setInterval(playMusic, 300); // Background music loop
+        setInterval(playMusic, 300); 
+
         // --------------------------
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const tileSize = 30; 
         
-        let player = { x: 1, y: 1, color: 'purple' }; 
+        let player = { x: 1, y: 1, sprite: '👧' }; 
         let inventorsRescued = 0;
         let gameState = 'start'; 
         let isPaused = false;
@@ -155,7 +169,7 @@
             for(let r = 0; r < 20; r++) {
                 let row = new Array();
                 for(let c = 0; c < 20; c++) {
-                    row.push(1);
+                    row.push(1); // 1 = Tree
                 }
                 maze.push(row);
             }
@@ -175,9 +189,7 @@
                 attempts++;
                 
                 let randIndex = Math.floor(Math.random() * openTiles.length);
-                if (Math.random() < 0.75) {
-                    randIndex = openTiles.length - 1; 
-                }
+                if (Math.random() < 0.75) { randIndex = openTiles.length - 1; }
                 
                 let startTile = openTiles.at(randIndex);
                 let randDirIndex = Math.floor(Math.random() * dirs.length);
@@ -197,37 +209,35 @@
             let safeSpawns = new Array();
             for(let i = 0; i < openTiles.length; i++) {
                 let t = openTiles.at(i);
-                if(t.x > 5 || t.y > 5) {
-                    safeSpawns.push(t);
-                }
+                if(t.x > 5 || t.y > 5) { safeSpawns.push(t); }
             }
             safeSpawns.sort(() => Math.random() - 0.5);
 
             for(let i = 0; i < 5; i++) {
                 let t = safeSpawns.pop();
-                maze.at(t.y).splice(t.x, 1, 3); 
+                maze.at(t.y).splice(t.x, 1, 3); // Inventor
             }
             for(let i = 0; i < 8; i++) {
                 let t = safeSpawns.pop();
-                maze.at(t.y).splice(t.x, 1, 4); 
+                maze.at(t.y).splice(t.x, 1, 4); // Lava
             }
             for(let i = 0; i < 15; i++) {
                 let t = safeSpawns.pop();
-                maze.at(t.y).splice(t.x, 1, 2); 
+                maze.at(t.y).splice(t.x, 1, 2); // Vine
             }
             for(let i = 0; i < 5; i++) {
                 let t = safeSpawns.pop();
-                maze.at(t.y).splice(t.x, 1, 5); 
+                maze.at(t.y).splice(t.x, 1, 5); // Meat
             }
 
             enemies = new Array();
             for(let i = 0; i < 3; i++) {
                 let t = safeSpawns.pop();
-                enemies.push({ type: 'Raptor', x: t.x, y: t.y, dirX: 1, dirY: 0, color: '#FF0000' });
+                enemies.push({ sprite: '🦖', type: 'Raptor', x: t.x, y: t.y, dirX: 1, dirY: 0 });
             }
             for(let i = 0; i < 3; i++) {
                 let t = safeSpawns.pop();
-                enemies.push({ type: 'Stegosaurus', x: t.x, y: t.y, dirX: 0, dirY: 1, color: '#808080' });
+                enemies.push({ sprite: '🦕', type: 'Stegosaurus', x: t.x, y: t.y, dirX: 0, dirY: 1 });
             }
         }
 
@@ -244,7 +254,7 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#FFFFFF';
                 ctx.font = 'bold 50px Courier New';
-                ctx.fillText('PAUSED', 210, 310);
+                ctx.fillText('PAUSED', 300, 310);
             } else {
                 btn.innerText = 'Pause Game';
                 btn.style.backgroundColor = '#4CAF50'; 
@@ -252,14 +262,16 @@
             }
         }
 
-        function startGame(character) {
-            // Enable sound engine on user interaction
+        function startGame(characterSprite) {
             if (audioCtx.state === 'suspended') { audioCtx.resume(); }
 
             document.getElementById('character-select').style.display = 'none';
             document.getElementById('game-ui').style.display = 'block';
-            document.getElementById('hero-name').innerText = character;
-            player.color = character === 'Lila' ? '#9C27B0' : '#2196F3';
+            
+            let heroLabel = characterSprite === '👧' ? 'Lila' : 'Nate';
+            document.getElementById('hero-name').innerText = heroLabel;
+            player.sprite = characterSprite;
+            
             resetBoard();
             
             if (!gameInterval) {
@@ -283,8 +295,18 @@
             document.getElementById('meat-count').innerText = '0';
             activeMeats = new Array();
             
+            // Set drawing settings for Emojis
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
             generateMap();
             drawGame();
+        }
+
+        // Helper function for drawing emojis centered in tiles
+        function drawEmoji(emoji, col, row, sizeStr) {
+            ctx.font = sizeStr + ' sans-serif';
+            ctx.fillText(emoji, col * tileSize + (tileSize/2), row * tileSize + (tileSize/2));
         }
 
         function drawGame() {
@@ -297,34 +319,27 @@
                     for (let col = 0; col < 20; col++) {
                         let tile = maze.at(row).at(col);
                         if (tile === 1) { 
-                            ctx.fillStyle = '#006400'; 
-                            ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize); 
+                            drawEmoji('🌲', col, row, '24px');
                         } else if (tile === 2) { 
-                            ctx.fillStyle = '#32CD32'; 
-                            ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize); 
+                            drawEmoji('🌿', col, row, '20px');
                         } else if (tile === 3) { 
-                            ctx.fillStyle = '#FFD700'; 
-                            ctx.fillRect(col * tileSize + 5, row * tileSize + 5, 20, 20); 
+                            drawEmoji('🧑‍🔬', col, row, '24px');
                         } else if (tile === 4) { 
-                            ctx.fillStyle = '#FF4500'; 
-                            ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize); 
+                            drawEmoji('🌋', col, row, '24px');
                         } else if (tile === 5) {
-                            ctx.fillStyle = '#FFB6C1'; 
-                            ctx.fillRect(col * tileSize + 5, row * tileSize + 5, 20, 20);
+                            drawEmoji('🥩', col, row, '20px');
                         }
                     }
                 }
 
                 for(let i = 0; i < activeMeats.length; i++) {
                     let m = activeMeats.at(i);
-                    ctx.fillStyle = '#FF69B4'; 
-                    ctx.fillRect(m.x * tileSize + 4, m.y * tileSize + 4, 22, 22);
+                    drawEmoji('🥩', m.x, m.y, '20px');
                 }
 
                 for(let i = 0; i < enemies.length; i++) {
                     let en = enemies.at(i);
-                    ctx.fillStyle = en.color;
-                    ctx.fillRect(en.x * tileSize + 4, en.y * tileSize + 4, 22, 22);
+                    drawEmoji(en.sprite, en.x, en.y, '24px');
                 }
 
             } else if (gameState === 'boss') {
@@ -333,20 +348,23 @@
                 ctx.fillStyle = '#111111'; 
                 ctx.fillRect(60, 60, canvas.width - 120, canvas.height - 120);
                 
-                ctx.fillStyle = '#8B0000'; 
-                ctx.fillRect(8 * tileSize, 6 * tileSize, tileSize * 4, tileSize * 4);
+                // Draw Giant King T-Rex Sprite
+                ctx.font = '90px sans-serif';
+                ctx.fillText('🦖', 10 * tileSize, 8 * tileSize);
+                ctx.font = '50px sans-serif';
+                ctx.fillText('👑', 9.5 * tileSize, 6 * tileSize);
                 
                 if (bossState === 'sleeping') {
                     ctx.fillStyle = '#FFFFFF';
                     ctx.font = 'bold 24px Courier New';
-                    ctx.fillText('Zzz...', 8 * tileSize + 20, 6 * tileSize - 10);
+                    ctx.fillText('Zzz...', 10 * tileSize, 5 * tileSize);
                     
                     ctx.fillStyle = 'rgba(255, 255, 0, 0.4)';
                     ctx.fillRect(8 * tileSize, 5 * tileSize, tileSize * 4, tileSize);
                 } else {
                     ctx.fillStyle = '#FF0000';
                     ctx.font = 'bold 24px Courier New';
-                    ctx.fillText('EYES OPEN!', 8 * tileSize - 10, 6 * tileSize - 10);
+                    ctx.fillText('EYES OPEN!', 10 * tileSize, 5 * tileSize);
                     
                     ctx.fillStyle = 'rgba(255, 0, 0, 0.4)';
                     ctx.fillRect(8 * tileSize, 5 * tileSize, tileSize * 4, tileSize);
@@ -354,22 +372,24 @@
                 
                 ctx.fillStyle = '#FFFFFF';
                 ctx.font = '18px Courier New';
-                ctx.fillText('Hold SHIFT to sneak!', 200, 35);
-                ctx.fillText('FREEZE when his eyes open!', 160, canvas.height - 25);
+                ctx.fillText('Hold SHIFT to sneak!', 300, 35);
+                ctx.fillText('FREEZE when his eyes open!', 300, canvas.height - 25);
                 
             } else if (gameState === 'win') {
                 ctx.fillStyle = '#4CAF50';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = '40px Courier New';
-                ctx.fillText('YOU WIN!', 220, 250);
+                ctx.font = 'bold 50px Courier New';
+                ctx.fillText('YOU WIN!', 300, 250);
                 ctx.font = '20px Courier New';
-                ctx.fillText('The T-Rex laughed so hard he disappeared!', 50, 300);
+                ctx.fillText('The T-Rex laughed so hard he disappeared!', 300, 300);
+                
+                ctx.font = '60px sans-serif';
+                ctx.fillText('🎉', 300, 400);
             }
 
             if (gameState !== 'win') {
-                ctx.fillStyle = player.color;
-                ctx.fillRect(player.x * tileSize + 4, player.y * tileSize + 4, 22, 22);
+                drawEmoji(player.sprite, player.x, player.y, '26px');
             }
         }
 
@@ -380,7 +400,6 @@
             if (gameState === 'boss') {
                 bossTimer++;
                 
-                // Audio Cue: Snoring while asleep
                 if (bossState === 'sleeping' && bossTimer % 4 === 0) {
                     SoundEngine.snore();
                 }
@@ -388,7 +407,7 @@
                 if (bossState === 'sleeping' && bossTimer >= bossSleepDuration) {
                     bossState = 'awake';
                     bossTimer = 0;
-                    SoundEngine.awake(); // Audio Cue: Woke up!
+                    SoundEngine.awake(); 
                     bossAwakeDuration = Math.floor(Math.random() * 5) + 6; 
                 } else if (bossState === 'awake' && bossTimer >= bossAwakeDuration) {
                     bossState = 'sleeping';
@@ -466,7 +485,7 @@
                     }
                     
                     if (en.x === player.x && en.y === player.y) {
-                        SoundEngine.roar(); // Dinosaur catch sound
+                        SoundEngine.roar(); 
                         alert("ROAR! Caught by a " + en.type + "!");
                         player.x = 1; player.y = 1; 
                     }
@@ -490,7 +509,7 @@
                     meatInventory--;
                     document.getElementById('meat-count').innerText = meatInventory;
                     activeMeats.push({x: player.x, y: player.y});
-                    SoundEngine.meat(); // Meat drop sound
+                    SoundEngine.meat(); 
                     drawGame();
                 }
                 return;
@@ -507,6 +526,7 @@
                     }
                     if (player.y === 5 && player.x >= 8 && player.x <= 11) {
                         gameState = 'win';
+                        SoundEngine.victory(); // Victory Fanfare!
                         drawGame();
                         setTimeout(() => alert("TICKLE ATTACK! He laughed so hard he disappeared!"), 100);
                     }
@@ -545,7 +565,7 @@
                                 player.x = 10; player.y = 15;
                             } else {
                                 player.x = newX; player.y = newY;
-                                SoundEngine.move(); // Stealth step sound
+                                SoundEngine.move(); 
                             }
                         }
                     }
@@ -571,7 +591,7 @@
                     
                     if (currentTile !== 1) {
                         player.x = newX; player.y = newY;
-                        SoundEngine.move(); // Movement sound
+                        SoundEngine.move(); 
                         
                         if (currentTile === 2) {
                             let boostX = player.x + dx;
@@ -587,7 +607,7 @@
                         }
                         
                         if (currentTile === 4) {
-                            SoundEngine.lava(); // Lava sound
+                            SoundEngine.lava(); 
                             alert("Oh no! You stepped in bubbling lava!");
                             player.x = 1; player.y = 1;
                         }
@@ -606,6 +626,7 @@
                             
                             maze.at(player.y).splice(player.x, 1, 0); 
                             inventorsRescued++;
+                            SoundEngine.rescue(); // New Rescue Chime!
                             
                             if (inventorsRescued === 5) {
                                 setTimeout(() => {
@@ -622,7 +643,7 @@
                         for(let i = 0; i < enemies.length; i++) {
                             let en = enemies.at(i);
                             if (player.x === en.x && player.y === en.y) {
-                                SoundEngine.roar(); // Caught sound
+                                SoundEngine.roar(); 
                                 alert("ROAR! You walked into a " + en.type + "!");
                                 player.x = 1; player.y = 1;
                             }
